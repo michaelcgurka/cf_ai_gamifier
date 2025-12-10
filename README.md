@@ -15,6 +15,7 @@ An AI-powered educational game generator that transforms uploaded educational co
 - 🎨 **Full-Screen Games**: Sandboxed iframe rendering for security
 - 📱 **Responsive Design**: Works on mobile and desktop
 - 🌊 **Streaming Generation**: Real-time progress updates
+- 💎 **Modern UI**: Built with TailwindCSS for a clean, minimalist design
 
 ## 🎬 Demo
 
@@ -296,13 +297,29 @@ Edit prompt templates in `src/prompts.ts` to customize game generation behavior.
 
 ### Styling
 
-Modify CSS variables in `public/index.html`:
-```css
-:root {
-  --primary-color: #f6821f;
-  --primary-hover: #e67e22;
-  /* ... more variables */
+The UI is built with **TailwindCSS** for modern, utility-first styling. Customize the design by editing the Tailwind config in `public/index.html`:
+
+```javascript
+// Modify colors and theme
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#6366f1',      // Change primary color
+        'primary-dark': '#4f46e5',
+      },
+    },
+  },
 }
+```
+
+Or modify Tailwind classes directly in the HTML for component-specific changes:
+```html
+<!-- Change button gradient -->
+<button class="bg-gradient-to-r from-blue-600 to-cyan-600">
+
+<!-- Change card styling -->
+<div class="bg-white rounded-3xl shadow-2xl">
 ```
 
 ## 🔍 Monitoring & Debugging

@@ -58,8 +58,16 @@ fileInput.addEventListener('change', async (e) => {
 // Game type selection
 gameTypeBtns.forEach(btn => {
 	btn.addEventListener('click', () => {
-		gameTypeBtns.forEach(b => b.classList.remove('selected'));
-		btn.classList.add('selected');
+		// Remove selected state from all buttons
+		gameTypeBtns.forEach(b => {
+			b.classList.remove('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-500', 'ring-offset-2');
+			b.classList.add('border-slate-200');
+		});
+
+		// Add selected state to clicked button
+		btn.classList.remove('border-slate-200');
+		btn.classList.add('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-500', 'ring-offset-2');
+
 		selectedGameType = btn.dataset.type;
 		updateGenerateButton();
 	});
@@ -89,8 +97,8 @@ async function handleFileUpload(file) {
 		}
 
 		uploadedFileName = file.name;
-		fileUploadArea.classList.add('has-file');
-		fileStatus.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+		fileUploadArea.classList.add('border-indigo-400', 'bg-indigo-50/50');
+		fileStatus.innerHTML = `<span class="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg font-medium">📄 ${file.name} <span class="ml-2 text-indigo-500">(${(file.size / 1024).toFixed(1)} KB)</span></span>`;
 
 		showProgress('Parsing file...');
 
@@ -136,14 +144,14 @@ async function handleFileUpload(file) {
 
 		hideProgress();
 		showStatus('success', `✓ File processed successfully! Created ${data.chunkCount} knowledge chunks.`);
-		gameControls.classList.add('visible');
+		gameControls.classList.remove('hidden');
 		updateGenerateButton();
 
 	} catch (error) {
 		console.error('Error handling file upload:', error);
 		hideProgress();
 		showStatus('error', error.message);
-		fileUploadArea.classList.remove('has-file');
+		fileUploadArea.classList.remove('border-indigo-400', 'bg-indigo-50/50');
 	}
 }
 
@@ -311,47 +319,22 @@ function renderGameFullScreen(htmlContent) {
 	// Create overlay
 	const overlay = document.createElement('div');
 	overlay.id = 'game-overlay';
-	overlay.style.cssText = `
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: white;
-		z-index: 9999;
-		overflow: hidden;
-	`;
+	overlay.className = 'fixed inset-0 bg-white z-[9999] overflow-hidden game-overlay';
 
 	// Create iframe
 	const iframe = document.createElement('iframe');
-	iframe.style.cssText = `
-		width: 100%;
-		height: 100%;
-		border: none;
-	`;
+	iframe.className = 'w-full h-full border-0';
 	iframe.sandbox = 'allow-scripts allow-same-origin';
 
 	// Create close button
 	const closeBtn = document.createElement('button');
-	closeBtn.textContent = '✕ Close Game';
-	closeBtn.style.cssText = `
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		z-index: 10000;
-		padding: 12px 24px;
-		background: #f44336;
-		color: white;
-		border: none;
-		border-radius: 6px;
-		cursor: pointer;
-		font-size: 14px;
-		font-weight: 600;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-		transition: background 0.3s;
+	closeBtn.innerHTML = `
+		<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+		</svg>
+		Close Game
 	`;
-	closeBtn.onmouseover = () => closeBtn.style.background = '#d32f2f';
-	closeBtn.onmouseout = () => closeBtn.style.background = '#f44336';
+	closeBtn.className = 'absolute top-4 right-4 z-[10000] px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center';
 	closeBtn.onclick = () => {
 		overlay.remove();
 		generateBtn.disabled = false;
@@ -374,7 +357,7 @@ function renderGameFullScreen(htmlContent) {
  */
 function showProgress(message) {
 	progressText.textContent = message;
-	progressIndicator.classList.add('visible');
+	progressIndicator.classList.remove('hidden');
 	setProgress(10);
 }
 
@@ -382,7 +365,7 @@ function showProgress(message) {
  * Hides progress indicator
  */
 function hideProgress() {
-	progressIndicator.classList.remove('visible');
+	progressIndicator.classList.add('hidden');
 	setProgress(0);
 }
 
@@ -398,9 +381,18 @@ function setProgress(percentage) {
  */
 function showStatus(type, message) {
 	statusMessage.textContent = message;
-	statusMessage.className = `status-message ${type} visible`;
+
+	// Apply Tailwind classes based on type
+	if (type === 'success') {
+		statusMessage.className = 'mt-6 p-4 rounded-xl bg-green-50 text-green-800 border border-green-200';
+	} else if (type === 'error') {
+		statusMessage.className = 'mt-6 p-4 rounded-xl bg-red-50 text-red-800 border border-red-200';
+	}
+
+	statusMessage.classList.remove('hidden');
+
 	setTimeout(() => {
-		statusMessage.classList.remove('visible');
+		statusMessage.classList.add('hidden');
 	}, 5000);
 }
 

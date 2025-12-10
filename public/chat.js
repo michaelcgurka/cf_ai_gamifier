@@ -133,7 +133,7 @@ async function handleFileUpload(file) {
 
 			// Handle rate limit specifically
 			if (response.status === 429) {
-				throw new Error('⏰ ' + (error.message || 'Daily AI limit reached. Please try again tomorrow!'));
+				throw new Error(error.message || 'Daily AI limit reached. Please try again tomorrow.');
 			}
 
 			throw new Error(error.error || 'Failed to initialize session');
@@ -143,7 +143,7 @@ async function handleFileUpload(file) {
 		sessionId = data.sessionId;
 
 		hideProgress();
-		showStatus('success', `✓ File processed successfully! Created ${data.chunkCount} knowledge chunks.`);
+		showStatus('success', `File processed successfully. Created ${data.chunkCount} knowledge chunks.`);
 		gameControls.classList.remove('hidden');
 		updateGenerateButton();
 
@@ -225,7 +225,7 @@ async function generateGame() {
 
 			// Handle rate limit specifically
 			if (response.status === 429) {
-				throw new Error('⏰ ' + (error.message || 'Daily AI limit reached. Please try again tomorrow!'));
+				throw new Error(error.message || 'Daily AI limit reached. Please try again tomorrow.');
 			}
 
 			throw new Error(error.error || 'Failed to generate game');
@@ -338,7 +338,7 @@ function renderGameFullScreen(htmlContent) {
 	closeBtn.onclick = () => {
 		overlay.remove();
 		generateBtn.disabled = false;
-		showStatus('success', '✓ Game closed. Generate another one or upload a new file!');
+		showStatus('success', 'Game closed. You can generate another game or upload a new file.');
 	};
 
 	// Assemble and show

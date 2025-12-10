@@ -1,38 +1,38 @@
-# 🎮 Educational Game Generator
+# Educational Game Generator
 
 An AI-powered educational game generator that transforms uploaded educational content into interactive learning games using RAG (Retrieval Augmented Generation) and Cloudflare Workers AI.
 
-## ✨ Features
+## Features
 
-- 📁 **Multi-Format Support**: Upload TXT, MD, PDF, or DOCX files
-- 🧠 **RAG System**: Custom lightweight RAG implementation with semantic search
-- 🎯 **Three Game Types**:
+- **Multi-Format Support**: Upload TXT, MD, PDF, or DOCX files
+- **RAG System**: Custom lightweight RAG implementation with semantic search
+- **Three Game Types**:
   - **Quiz Games**: Multiple choice, true/false, fill-in-blank questions
   - **Interactive Simulations**: Visual demonstrations with controls
   - **Puzzle Games**: Matching, word search, sorting, memory games
-- ⚡ **Edge-First Architecture**: Runs globally on Cloudflare Workers
-- 🔒 **Session-Based**: No database needed, 1-hour session TTL
-- 🎨 **Full-Screen Games**: Sandboxed iframe rendering for security
-- 📱 **Responsive Design**: Works on mobile and desktop
-- 🌊 **Streaming Generation**: Real-time progress updates
-- 💎 **Modern UI**: Built with TailwindCSS for a clean, minimalist design
+- **Edge-First Architecture**: Runs globally on Cloudflare Workers
+- **Session-Based**: No database needed, 1-hour session TTL
+- **Full-Screen Games**: Sandboxed iframe rendering for security
+- **Responsive Design**: Works on mobile and desktop
+- **Streaming Generation**: Real-time progress updates
+- **Modern UI**: Built with TailwindCSS for a clean, minimalist design
 
-## 🎬 Demo
+## Demo
 
 1. Upload an educational file (e.g., lecture notes, textbook content)
 2. AI processes and creates knowledge chunks with embeddings
 3. Select a game type (Quiz, Simulation, or Puzzle)
 4. Add optional instructions for customization
 5. AI generates a complete, self-contained HTML game
-6. Play the game in full-screen mode!
+6. Play the game in full-screen mode
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or newer)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
-- A Cloudflare account (Free tier works!)
+- A Cloudflare account (free tier supported)
 
 ### Installation
 
@@ -68,7 +68,7 @@ npx wrangler dev
 
 This will start a local server at **http://localhost:8787**.
 
-**⚠️ Important Note**: Workers AI accesses your Cloudflare account even during local development, which may incur usage charges on the paid tier. On the free tier, you'll be limited to ~50 games/day.
+**Important Note**: Workers AI accesses your Cloudflare account even during local development, which may incur usage charges on the paid tier. On the free tier, you'll be limited to approximately 50 games per day.
 
 ### Deployment
 
@@ -82,7 +82,7 @@ npx wrangler deploy
 
 Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.workers.dev`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 /
@@ -100,7 +100,7 @@ Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.work
 └── README.md               # This documentation
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ### Backend Flow
 
@@ -132,19 +132,19 @@ Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.work
 
 ### Why Custom RAG? (No LangChain)
 
-- ✅ **Tiny Bundle**: ~10KB vs ~1MB+ with LangChain
-- ✅ **Workers Compatible**: No Node.js dependencies
-- ✅ **Fast**: Optimized for edge computing
-- ✅ **Simple**: Easy to understand and modify
+- **Tiny Bundle**: ~10KB vs ~1MB+ with LangChain
+- **Workers Compatible**: No Node.js dependencies
+- **Fast**: Optimized for edge computing
+- **Simple**: Easy to understand and modify
 
-## 💰 Cost & Free Tier Limits
+## Cost & Free Tier Limits
 
 ### Cloudflare Free Tier
 
 **Workers AI:**
 - **10,000 Neurons per day** (free)
 - Per game: ~150-550 neurons
-- **~50 games per day** on free tier ✅
+- **Approximately 50 games per day** on free tier
 
 **Other Services:**
 - **KV Namespace**: 100,000 reads/day, 1,000 writes/day (free)
@@ -152,19 +152,19 @@ Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.work
 
 ### What Happens When Limits Are Reached?
 
-- ❌ **Requests will FAIL** with user-friendly error message
-- ✅ **NO automatic charges** (you must add payment method to upgrade)
-- ⏰ Limits reset daily at **midnight UTC**
-- 📊 Error message: *"Daily AI limit reached. Please try again tomorrow!"*
+- **Requests will FAIL** with user-friendly error message
+- **NO automatic charges** (you must add payment method to upgrade)
+- Limits reset daily at **midnight UTC**
+- Error message: "Daily AI limit reached. Please try again tomorrow."
 
 ### Production Costs (Paid Tier)
 
 Per game generation:
 - **Embeddings**: ~50 chunks × $0.004/1000 = **$0.0002**
 - **Game Generation**: ~4000 tokens × $0.012/1000 = **$0.048**
-- **Total**: ~**$0.05 per game** 💰
+- **Total**: ~**$0.05 per game**
 
-## 🎮 Game Types
+## Game Types
 
 ### 1. Quiz Games
 - Multiple choice questions
@@ -187,16 +187,16 @@ Per game generation:
 - Memory/concentration
 - Drag-and-drop challenges
 
-## 🔒 Security
+## Security
 
 ### HTML Validation
 
 Generated games are validated to ensure:
-- ✅ No external scripts (`<script src=...>`)
-- ✅ No external stylesheets (`<link href=...>`)
-- ✅ No import/require statements
-- ✅ Size limits (<300KB)
-- ✅ Complete HTML structure
+- No external scripts (`<script src=...>`)
+- No external stylesheets (`<link href=...>`)
+- No import/require statements
+- Size limits (<300KB)
+- Complete HTML structure
 
 ### Sandboxed Rendering
 
@@ -205,7 +205,7 @@ Games run in a sandboxed iframe:
 iframe.sandbox = 'allow-scripts allow-same-origin';
 ```
 
-## 📝 API Endpoints
+## API Endpoints
 
 ### `POST /api/session/init`
 
@@ -241,16 +241,16 @@ Generate a game from session content.
 
 **Response:** Streaming HTML (SSE format)
 
-## 🎯 Usage Tips
+## Usage Tips
 
 ### Best Content Types
 
-- ✅ Lecture notes
-- ✅ Textbook chapters
-- ✅ Study guides
-- ✅ Technical documentation
-- ✅ Historical articles
-- ✅ Scientific papers
+- Lecture notes
+- Textbook chapters
+- Study guides
+- Technical documentation
+- Historical articles
+- Scientific papers
 
 ### Optimal File Size
 
@@ -266,7 +266,7 @@ Generate a game from session content.
 - "Add difficulty progression"
 - "Keep it simple for beginners"
 
-## 🛠️ Customization
+## Customization
 
 ### Change Embedding Model
 
@@ -322,7 +322,7 @@ Or modify Tailwind classes directly in the HTML for component-specific changes:
 <div class="bg-white rounded-3xl shadow-2xl">
 ```
 
-## 🔍 Monitoring & Debugging
+## Monitoring & Debugging
 
 ### View Logs
 
@@ -376,7 +376,7 @@ Edit `wrangler.jsonc` to change the cron schedule:
 
 [Learn more about cron triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/)
 
-## 🧪 Testing
+## Testing
 
 A sample file is included for testing:
 
@@ -391,12 +391,12 @@ Test workflow:
 3. Upload `sample-content.txt`
 4. Select "Quiz" game type
 5. Click "Generate Game"
-6. Play the generated quiz!
+6. Play the generated quiz
 
-## ⚠️ Limitations
+## Limitations
 
 ### Free Tier
-- ~50 games per day
+- Approximately 50 games per day
 - Rate limit errors show user-friendly messages
 - No automatic charges
 
@@ -410,7 +410,7 @@ Test workflow:
 - Sessions expire after 1 hour
 - Users must re-upload file after expiration
 
-## 🤝 Contributing
+## Contributing
 
 This is a personal project, but feel free to:
 - Fork and modify for your needs
@@ -418,7 +418,7 @@ This is a personal project, but feel free to:
 - Share improvements
 - Create your own game templates
 
-## 📚 Resources
+## Resources
 
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 - [Cloudflare Workers AI Documentation](https://developers.cloudflare.com/workers-ai/)
@@ -426,11 +426,11 @@ This is a personal project, but feel free to:
 - [Cloudflare KV Documentation](https://developers.cloudflare.com/kv/)
 - [RAG Overview](https://www.cloudflare.com/learning/ai/what-is-retrieval-augmented-generation/)
 
-## 📄 License
+## License
 
-MIT License - Feel free to use and modify!
+MIT License - Feel free to use and modify.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built on Cloudflare Workers infrastructure
 - Uses Meta's Llama 3.3 70B model via Workers AI
@@ -439,7 +439,5 @@ MIT License - Feel free to use and modify!
 - Original template from Cloudflare
 
 ---
-
-**Happy Learning! 🎓🎮**
 
 For questions or issues, check the browser console or Wrangler logs for debugging information.

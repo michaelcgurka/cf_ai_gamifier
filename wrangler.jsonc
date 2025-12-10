@@ -18,5 +18,14 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"kv_namespaces": [
+		{
+			"binding": "SESSIONS_KV",
+			"id": "8d998ff2c1cb433dbe7433e5b98705bf"
+		}
+	],
+	"triggers": {
+		"crons": ["0 0 * * *"]
+	},
 	"upload_source_maps": true
 }

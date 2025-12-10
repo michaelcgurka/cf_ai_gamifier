@@ -3,7 +3,10 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>LLM Chat App</title>
+		<title>Educational Game Generator</title>
+		<!-- Client-side file parsers -->
+		<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 		<style>
 			:root {
 				--primary-color: #f6821f;
@@ -134,20 +137,255 @@
 				font-size: 0.85rem;
 				color: var(--text-light);
 			}
+
+			/* Upload Section */
+			.upload-section {
+				background-color: white;
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+				padding: 1.5rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.upload-section h2 {
+				font-size: 1.25rem;
+				margin-bottom: 1rem;
+				color: var(--text-color);
+			}
+
+			.file-upload-area {
+				border: 2px dashed var(--border-color);
+				border-radius: 8px;
+				padding: 2rem;
+				text-align: center;
+				cursor: pointer;
+				transition: all 0.3s;
+				margin-bottom: 1rem;
+			}
+
+			.file-upload-area:hover {
+				border-color: var(--primary-color);
+				background-color: var(--light-bg);
+			}
+
+			.file-upload-area.has-file {
+				border-color: var(--primary-color);
+				background-color: #fff2e6;
+			}
+
+			#file-input {
+				display: none;
+			}
+
+			.file-info {
+				margin-top: 0.5rem;
+				font-size: 0.9rem;
+				color: var(--text-light);
+			}
+
+			.game-controls {
+				display: none;
+				margin-top: 1rem;
+			}
+
+			.game-controls.visible {
+				display: block;
+			}
+
+			.game-type-selector {
+				margin-bottom: 1rem;
+			}
+
+			.game-type-selector label {
+				display: block;
+				margin-bottom: 0.5rem;
+				font-weight: 500;
+			}
+
+			.game-types {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+				gap: 0.75rem;
+			}
+
+			.game-type-btn {
+				padding: 0.75rem;
+				border: 2px solid var(--border-color);
+				background-color: white;
+				border-radius: 8px;
+				cursor: pointer;
+				transition: all 0.3s;
+				font-size: 0.95rem;
+			}
+
+			.game-type-btn:hover {
+				border-color: var(--primary-color);
+				background-color: var(--light-bg);
+			}
+
+			.game-type-btn.selected {
+				border-color: var(--primary-color);
+				background-color: var(--user-msg-bg);
+				font-weight: 600;
+			}
+
+			.instructions-area {
+				margin-bottom: 1rem;
+			}
+
+			.instructions-area label {
+				display: block;
+				margin-bottom: 0.5rem;
+				font-weight: 500;
+			}
+
+			.instructions-area textarea {
+				width: 100%;
+				padding: 0.75rem;
+				border: 1px solid var(--border-color);
+				border-radius: 4px;
+				font-family: inherit;
+				resize: vertical;
+				min-height: 60px;
+			}
+
+			#generate-game-btn {
+				width: 100%;
+				padding: 0.75rem;
+				background-color: var(--primary-color);
+				color: white;
+				border: none;
+				border-radius: 4px;
+				font-size: 1rem;
+				font-weight: 600;
+				cursor: pointer;
+				transition: background-color 0.3s;
+			}
+
+			#generate-game-btn:hover {
+				background-color: var(--primary-hover);
+			}
+
+			#generate-game-btn:disabled {
+				background-color: var(--text-light);
+				cursor: not-allowed;
+			}
+
+			.progress-indicator {
+				display: none;
+				text-align: center;
+				padding: 1rem;
+				margin-top: 1rem;
+				background-color: var(--light-bg);
+				border-radius: 4px;
+			}
+
+			.progress-indicator.visible {
+				display: block;
+			}
+
+			.progress-bar {
+				width: 100%;
+				height: 4px;
+				background-color: var(--border-color);
+				border-radius: 2px;
+				overflow: hidden;
+				margin-top: 0.5rem;
+			}
+
+			.progress-fill {
+				height: 100%;
+				background-color: var(--primary-color);
+				width: 0%;
+				transition: width 0.3s;
+			}
+
+			.status-message {
+				margin-top: 1rem;
+				padding: 0.75rem;
+				border-radius: 4px;
+				display: none;
+			}
+
+			.status-message.visible {
+				display: block;
+			}
+
+			.status-message.success {
+				background-color: #d1fae5;
+				color: #065f46;
+				border: 1px solid #6ee7b7;
+			}
+
+			.status-message.error {
+				background-color: #fee2e2;
+				color: #991b1b;
+				border: 1px solid #fca5a5;
+			}
 		</style>
 	</head>
 	<body>
 		<header>
-			<h1>Cloudflare AI Chat</h1>
-			<p>Powered by Cloudflare Workers AI</p>
+			<h1>🎮 Educational Game Generator</h1>
+			<p>Upload educational content and generate interactive learning games using AI</p>
 		</header>
 
-		<div class="chat-container">
+		<!-- File Upload Section -->
+		<div class="upload-section">
+			<h2>Step 1: Upload Your Educational Content</h2>
+			<div class="file-upload-area" id="file-upload-area">
+				<input type="file" id="file-input" accept=".txt,.md,.pdf,.docx" />
+				<p><strong>📁 Click to upload or drag and drop</strong></p>
+				<p class="file-info">Supported formats: TXT, MD, PDF, DOCX (Max 10MB)</p>
+			</div>
+			<div id="file-status" class="file-info"></div>
+
+			<!-- Game Controls (shown after file upload) -->
+			<div class="game-controls" id="game-controls">
+				<h2>Step 2: Choose Your Game Type</h2>
+
+				<div class="game-type-selector">
+					<label>Select a game type:</label>
+					<div class="game-types">
+						<button class="game-type-btn" data-type="quiz">
+							📝 Quiz Game
+						</button>
+						<button class="game-type-btn" data-type="simulation">
+							🔬 Interactive Simulation
+						</button>
+						<button class="game-type-btn" data-type="puzzle">
+							🧩 Puzzle Game
+						</button>
+					</div>
+				</div>
+
+				<div class="instructions-area">
+					<label for="game-instructions">Additional Instructions (Optional):</label>
+					<textarea
+						id="game-instructions"
+						placeholder="E.g., Focus on key concepts, make it challenging, include explanations..."
+					></textarea>
+				</div>
+
+				<button id="generate-game-btn" disabled>Generate Game</button>
+
+				<div class="progress-indicator" id="progress-indicator">
+					<p id="progress-text">Processing...</p>
+					<div class="progress-bar">
+						<div class="progress-fill" id="progress-fill"></div>
+					</div>
+				</div>
+
+				<div class="status-message" id="status-message"></div>
+			</div>
+		</div>
+
+		<!-- Optional: Chat interface for guidance -->
+		<div class="chat-container" style="display: none;">
 			<div id="chat-messages" class="chat-messages">
 				<div class="message assistant-message">
 					<p>
-						Hello! I'm an LLM chat app powered by Cloudflare Workers AI. How can
-						I help you today?
+						Welcome! Upload an educational file to get started.
 					</p>
 				</div>
 			</div>
@@ -161,14 +399,13 @@
 					id="user-input"
 					placeholder="Type your message here..."
 					rows="1"
-					autofocus
 				></textarea>
 				<button id="send-button">Send</button>
 			</div>
 		</div>
 
 		<footer>
-			<p>Cloudflare Workers AI Chat Template &copy; 2025</p>
+			<p>Educational Game Generator powered by Cloudflare Workers AI &copy; 2025</p>
 		</footer>
 
 		<!-- Chat app script -->

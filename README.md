@@ -1,46 +1,44 @@
-# LLM Chat Application Template
+# 🎮 Educational Game Generator
 
-A simple, ready-to-deploy chat application template powered by Cloudflare Workers AI. This template provides a clean starting point for building AI chat applications with streaming responses.
+An AI-powered educational game generator that transforms uploaded educational content into interactive learning games using RAG (Retrieval Augmented Generation) and Cloudflare Workers AI.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/llm-chat-app-template)
+## ✨ Features
 
-<!-- dash-content-start -->
+- 📁 **Multi-Format Support**: Upload TXT, MD, PDF, or DOCX files
+- 🧠 **RAG System**: Custom lightweight RAG implementation with semantic search
+- 🎯 **Three Game Types**:
+  - **Quiz Games**: Multiple choice, true/false, fill-in-blank questions
+  - **Interactive Simulations**: Visual demonstrations with controls
+  - **Puzzle Games**: Matching, word search, sorting, memory games
+- ⚡ **Edge-First Architecture**: Runs globally on Cloudflare Workers
+- 🔒 **Session-Based**: No database needed, 1-hour session TTL
+- 🎨 **Full-Screen Games**: Sandboxed iframe rendering for security
+- 📱 **Responsive Design**: Works on mobile and desktop
+- 🌊 **Streaming Generation**: Real-time progress updates
 
-## Demo
+## 🎬 Demo
 
-This template demonstrates how to build an AI-powered chat interface using Cloudflare Workers AI with streaming responses. It features:
+1. Upload an educational file (e.g., lecture notes, textbook content)
+2. AI processes and creates knowledge chunks with embeddings
+3. Select a game type (Quiz, Simulation, or Puzzle)
+4. Add optional instructions for customization
+5. AI generates a complete, self-contained HTML game
+6. Play the game in full-screen mode!
 
-- Real-time streaming of AI responses using Server-Sent Events (SSE)
-- Easy customization of models and system prompts
-- Support for AI Gateway integration
-- Clean, responsive UI that works on mobile and desktop
-
-## Features
-
-- 💬 Simple and responsive chat interface
-- ⚡ Server-Sent Events (SSE) for streaming responses
-- 🧠 Powered by Cloudflare Workers AI LLMs
-- 🛠️ Built with TypeScript and Cloudflare Workers
-- 📱 Mobile-friendly design
-- 🔄 Maintains chat history on the client
-- 🔎 Built-in Observability logging
-<!-- dash-content-end -->
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or newer)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
-- A Cloudflare account with Workers AI access
+- A Cloudflare account (Free tier works!)
 
 ### Installation
 
-1. Clone this repository:
+1. Clone or download this repository:
 
    ```bash
-   git clone https://github.com/cloudflare/templates.git
-   cd templates/llm-chat-app
+   cd llm-chat-app-template
    ```
 
 2. Install dependencies:
@@ -49,10 +47,13 @@ This template demonstrates how to build an AI-powered chat interface using Cloud
    npm install
    ```
 
-3. Generate Worker type definitions:
+3. The KV namespace is already created. If you need to recreate it:
+
    ```bash
-   npm run cf-typegen
+   npx wrangler kv namespace create SESSIONS_KV
    ```
+
+   Then update the `id` in `wrangler.jsonc` with the returned ID.
 
 ### Development
 
@@ -60,11 +61,13 @@ Start a local development server:
 
 ```bash
 npm run dev
+# or
+npx wrangler dev
 ```
 
-This will start a local server at http://localhost:8787.
+This will start a local server at **http://localhost:8787**.
 
-Note: Using Workers AI accesses your Cloudflare account even during local development, which will incur usage charges.
+**⚠️ Important Note**: Workers AI accesses your Cloudflare account even during local development, which may incur usage charges on the paid tier. On the free tier, you'll be limited to ~50 games/day.
 
 ### Deployment
 
@@ -72,82 +75,354 @@ Deploy to Cloudflare Workers:
 
 ```bash
 npm run deploy
+# or
+npx wrangler deploy
 ```
 
-### Monitor
+Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.workers.dev`
 
-View real-time logs associated with any deployed Worker:
-
-```bash
-npm wrangler tail
-```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 /
-├── public/             # Static assets
-│   ├── index.html      # Chat UI HTML
-│   └── chat.js         # Chat UI frontend script
-├── src/
-│   ├── index.ts        # Main Worker entry point
-│   └── types.ts        # TypeScript type definitions
-├── test/               # Test files
-├── wrangler.jsonc      # Cloudflare Worker configuration
-├── tsconfig.json       # TypeScript configuration
-└── README.md           # This documentation
+├── public/                 # Frontend
+│   ├── index.html          # UI with file upload & game controls
+│   └── chat.js             # File parsing, RAG client, game renderer
+├── src/                    # Backend (Cloudflare Workers)
+│   ├── index.ts            # Main Worker with API endpoints
+│   ├── types.ts            # TypeScript type definitions
+│   ├── rag.ts              # RAG utilities (chunking, embeddings, search)
+│   └── prompts.ts          # Game generation prompt templates
+├── wrangler.jsonc          # Cloudflare Worker configuration
+├── tsconfig.json           # TypeScript configuration
+├── sample-content.txt      # Sample educational content for testing
+└── README.md               # This documentation
 ```
 
-## How It Works
+## 🏗️ Architecture
 
-### Backend
+### Backend Flow
 
-The backend is built with Cloudflare Workers and uses the Workers AI platform to generate responses. The main components are:
+```
+1. User uploads file → Client parses (PDF.js, Mammoth.js)
+2. POST /api/session/init → Creates session
+   - Chunks text (~500 chars/chunk)
+   - Generates embeddings (Workers AI: bge-base-en-v1.5)
+   - Stores in KV with 1-hour TTL
+3. POST /api/generate/{sessionId} → Generates game
+   - Creates query embedding
+   - RAG retrieval (top 5 relevant chunks)
+   - Generates game (Workers AI: Llama 3.3 70B)
+   - Streams HTML response
+4. Client validates & renders game in sandboxed iframe
+5. Cron trigger (daily at midnight UTC) → Cleanup & monitoring
+   - Lists active sessions
+   - Logs statistics
+   - Removes orphaned sessions
+```
 
-1. **API Endpoint** (`/api/chat`): Accepts POST requests with chat messages and streams responses
-2. **Streaming**: Uses Server-Sent Events (SSE) for real-time streaming of AI responses
-3. **Workers AI Binding**: Connects to Cloudflare's AI service via the Workers AI binding
+### RAG Implementation
 
-### Frontend
+- **Text Chunking**: Sentence-based with ~500 character chunks
+- **Embeddings**: Workers AI `@cf/baai/bge-base-en-v1.5` (768 dimensions)
+- **Storage**: Cloudflare KV (session-based, 1-hour TTL)
+- **Retrieval**: Cosine similarity search (top-K)
+- **Generation**: Workers AI `@cf/meta/llama-3.3-70b-instruct-fp8-fast`
 
-The frontend is a simple HTML/CSS/JavaScript application that:
+### Why Custom RAG? (No LangChain)
 
-1. Presents a chat interface
-2. Sends user messages to the API
-3. Processes streaming responses in real-time
-4. Maintains chat history on the client side
+- ✅ **Tiny Bundle**: ~10KB vs ~1MB+ with LangChain
+- ✅ **Workers Compatible**: No Node.js dependencies
+- ✅ **Fast**: Optimized for edge computing
+- ✅ **Simple**: Easy to understand and modify
 
-## Customization
+## 💰 Cost & Free Tier Limits
 
-### Changing the Model
+### Cloudflare Free Tier
 
-To use a different AI model, update the `MODEL_ID` constant in `src/index.ts`. You can find available models in the [Cloudflare Workers AI documentation](https://developers.cloudflare.com/workers-ai/models/).
+**Workers AI:**
+- **10,000 Neurons per day** (free)
+- Per game: ~150-550 neurons
+- **~50 games per day** on free tier ✅
 
-### Using AI Gateway
+**Other Services:**
+- **KV Namespace**: 100,000 reads/day, 1,000 writes/day (free)
+- **Workers Requests**: 100,000 requests/day (free)
 
-The template includes commented code for AI Gateway integration, which provides additional capabilities like rate limiting, caching, and analytics.
+### What Happens When Limits Are Reached?
 
-To enable AI Gateway:
+- ❌ **Requests will FAIL** with user-friendly error message
+- ✅ **NO automatic charges** (you must add payment method to upgrade)
+- ⏰ Limits reset daily at **midnight UTC**
+- 📊 Error message: *"Daily AI limit reached. Please try again tomorrow!"*
 
-1. [Create an AI Gateway](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) in your Cloudflare dashboard
-2. Uncomment the gateway configuration in `src/index.ts`
-3. Replace `YOUR_GATEWAY_ID` with your actual AI Gateway ID
-4. Configure other gateway options as needed:
-   - `skipCache`: Set to `true` to bypass gateway caching
-   - `cacheTtl`: Set the cache time-to-live in seconds
+### Production Costs (Paid Tier)
 
-Learn more about [AI Gateway](https://developers.cloudflare.com/ai-gateway/).
+Per game generation:
+- **Embeddings**: ~50 chunks × $0.004/1000 = **$0.0002**
+- **Game Generation**: ~4000 tokens × $0.012/1000 = **$0.048**
+- **Total**: ~**$0.05 per game** 💰
 
-### Modifying the System Prompt
+## 🎮 Game Types
 
-The default system prompt can be changed by updating the `SYSTEM_PROMPT` constant in `src/index.ts`.
+### 1. Quiz Games
+- Multiple choice questions
+- True/False questions
+- Fill-in-the-blank
+- Immediate feedback
+- Score tracking
+
+### 2. Interactive Simulations
+- Visual demonstrations
+- Interactive controls (sliders, buttons)
+- Step-by-step walkthroughs
+- Real-time parameter adjustments
+- Great for science, math, algorithms
+
+### 3. Puzzle Games
+- Matching (terms to definitions)
+- Word search
+- Sorting/ordering events
+- Memory/concentration
+- Drag-and-drop challenges
+
+## 🔒 Security
+
+### HTML Validation
+
+Generated games are validated to ensure:
+- ✅ No external scripts (`<script src=...>`)
+- ✅ No external stylesheets (`<link href=...>`)
+- ✅ No import/require statements
+- ✅ Size limits (<300KB)
+- ✅ Complete HTML structure
+
+### Sandboxed Rendering
+
+Games run in a sandboxed iframe:
+```javascript
+iframe.sandbox = 'allow-scripts allow-same-origin';
+```
+
+## 📝 API Endpoints
+
+### `POST /api/session/init`
+
+Initialize a session with uploaded content.
+
+**Request:**
+```json
+{
+  "text": "Educational content...",
+  "fileName": "lecture.pdf"
+}
+```
+
+**Response:**
+```json
+{
+  "sessionId": "uuid-here",
+  "chunkCount": 42
+}
+```
+
+### `POST /api/generate/{sessionId}`
+
+Generate a game from session content.
+
+**Request:**
+```json
+{
+  "gameType": "quiz",
+  "instructions": "Focus on key concepts"
+}
+```
+
+**Response:** Streaming HTML (SSE format)
+
+## 🎯 Usage Tips
+
+### Best Content Types
+
+- ✅ Lecture notes
+- ✅ Textbook chapters
+- ✅ Study guides
+- ✅ Technical documentation
+- ✅ Historical articles
+- ✅ Scientific papers
+
+### Optimal File Size
+
+- **Recommended**: 1-10 pages (500-5000 words)
+- **Minimum**: ~500 words
+- **Maximum**: 10MB file size limit
+
+### Custom Instructions Examples
+
+- "Focus on dates and key events"
+- "Make it challenging for advanced students"
+- "Include explanations for each answer"
+- "Add difficulty progression"
+- "Keep it simple for beginners"
+
+## 🛠️ Customization
+
+### Change Embedding Model
+
+Edit `src/rag.ts`:
+```typescript
+const EMBEDDING_MODEL = '@cf/baai/bge-small-en-v1.5'; // 384 dimensions (smaller, faster)
+```
+
+### Change LLM Model
+
+Edit `src/index.ts`:
+```typescript
+const MODEL_ID = "@cf/meta/llama-3.1-8b-instruct"; // Smaller, faster model
+```
+
+Available models: [Cloudflare Workers AI Models](https://developers.cloudflare.com/workers-ai/models/)
+
+### Adjust Chunk Size
+
+Edit `src/rag.ts`:
+```typescript
+const chunks = chunkText(text, 1000); // Larger chunks (default: 500)
+```
+
+### Modify Game Prompts
+
+Edit prompt templates in `src/prompts.ts` to customize game generation behavior.
 
 ### Styling
 
-The UI styling is contained in the `<style>` section of `public/index.html`. You can modify the CSS variables at the top to quickly change the color scheme.
+Modify CSS variables in `public/index.html`:
+```css
+:root {
+  --primary-color: #f6821f;
+  --primary-hover: #e67e22;
+  /* ... more variables */
+}
+```
 
-## Resources
+## 🔍 Monitoring & Debugging
+
+### View Logs
+
+```bash
+npx wrangler tail
+```
+
+### Check Usage
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Navigate to **Workers & Pages** → **AI**
+3. View real-time usage and costs
+
+### Debug Mode
+
+Open browser console (F12) to see:
+- File parsing status
+- Session creation details
+- RAG retrieval logs
+- Generation progress
+
+### Automated Maintenance (Cron Trigger)
+
+The application includes a **scheduled cleanup task** that runs daily at midnight UTC:
+
+**What it does:**
+- Lists all active sessions in KV
+- Logs session statistics
+- Cleans up orphaned sessions older than 2 hours (belt and suspenders approach)
+- Provides monitoring checkpoint for session health
+
+**Configuration:**
+```jsonc
+// wrangler.jsonc
+"triggers": {
+  "crons": ["0 0 * * *"]  // Daily at midnight UTC
+}
+```
+
+**View cron execution logs:**
+```bash
+npx wrangler tail
+# Watch for "Running scheduled cleanup task" messages
+```
+
+**Customize schedule:**
+Edit `wrangler.jsonc` to change the cron schedule:
+- `"0 */6 * * *"` - Every 6 hours
+- `"0 12 * * *"` - Daily at noon UTC
+- `"*/30 * * * *"` - Every 30 minutes
+
+[Learn more about cron triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/)
+
+## 🧪 Testing
+
+A sample file is included for testing:
+
+```bash
+# File: sample-content.txt
+# Content: Introduction to Machine Learning
+```
+
+Test workflow:
+1. Start dev server: `npm run dev`
+2. Open http://localhost:8787
+3. Upload `sample-content.txt`
+4. Select "Quiz" game type
+5. Click "Generate Game"
+6. Play the generated quiz!
+
+## ⚠️ Limitations
+
+### Free Tier
+- ~50 games per day
+- Rate limit errors show user-friendly messages
+- No automatic charges
+
+### Generated Games
+- Must be simple (no WebGL, complex Canvas operations)
+- Self-contained (no external dependencies)
+- Size limit: 300KB per game
+- Complexity guard prevents overly complex requests
+
+### Session Duration
+- Sessions expire after 1 hour
+- Users must re-upload file after expiration
+
+## 🤝 Contributing
+
+This is a personal project, but feel free to:
+- Fork and modify for your needs
+- Report issues
+- Share improvements
+- Create your own game templates
+
+## 📚 Resources
 
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 - [Cloudflare Workers AI Documentation](https://developers.cloudflare.com/workers-ai/)
 - [Workers AI Models](https://developers.cloudflare.com/workers-ai/models/)
+- [Cloudflare KV Documentation](https://developers.cloudflare.com/kv/)
+- [RAG Overview](https://www.cloudflare.com/learning/ai/what-is-retrieval-augmented-generation/)
+
+## 📄 License
+
+MIT License - Feel free to use and modify!
+
+## 🙏 Acknowledgments
+
+- Built on Cloudflare Workers infrastructure
+- Uses Meta's Llama 3.3 70B model via Workers AI
+- PDF.js for PDF parsing
+- Mammoth.js for DOCX parsing
+- Original template from Cloudflare
+
+---
+
+**Happy Learning! 🎓🎮**
+
+For questions or issues, check the browser console or Wrangler logs for debugging information.

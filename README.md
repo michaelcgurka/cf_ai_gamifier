@@ -39,7 +39,7 @@ An AI-powered educational game generator that transforms uploaded educational co
 1. Clone or download this repository:
 
    ```bash
-   cd llm-chat-app-template
+   cd cf_ai_gamifier
    ```
 
 2. Install dependencies:
@@ -80,7 +80,7 @@ npm run deploy
 npx wrangler deploy
 ```
 
-Your app will be available at `https://llm-chat-app-template.YOUR_SUBDOMAIN.workers.dev`
+Your app will be available at `https://cf_ai_gamifier.YOUR_SUBDOMAIN.workers.dev`
 
 ## Project Structure
 
